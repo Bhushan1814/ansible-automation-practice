@@ -1,0 +1,21 @@
+---
+- name: install nginx package
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Install nginx package
+      ansible.builtin.yum:
+        name: nginx # install the nginx package
+        state: present # install the package if not already installed
+    - name: create a directory 
+      ansible.builtin.file:
+        path: /home/ec2-user/projects # specify the path of the directory to be created
+        state: directory
+    - name: Create a file
+      ansible.builtin.file:
+        path: /root/wipro.txt # specify the path of the file to be created
+        state: touch
+    - name: copy a file
+      ansible.builtin.copy:
+        src: /root/wipro.txt # specify the source file path
+        dest: /home/ec2-user/projects/ # specify the destination file path

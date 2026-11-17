@@ -1,0 +1,57 @@
+# iclearnstall lemp by using variables
+---
+- name: installtion of lemp
+  hosts: targetserver
+  become: true
+  # define variables
+  vars:
+    web_pkg: nginx # assign value to variable
+    app_pkg:
+      - php
+      - php-fpm
+    db_pkg: mariadb105-server
+    web_service: nginx
+    app_service: php-fpm
+    db_service: mariadb
+    file_path: /usr/share/nginx/html/index.php
+  tasks:
+    - name: Install web server package
+      ansible.builtin.yum:
+        name: "{{ web_pkg }}" # use variable to install web server package
+        state: present
+
+    - name: Start and enable web server service
+      ansible.builtin.systemd_service:
+        name: "{{ web_service }}" # use variable to start and enable web server service
+        state: started
+        enabled: true
+
+    - name: Install database package
+      ansible.builtin.yum:
+        name: "{{ db_pkg }}" # use variable to install database package
+        state: present
+
+    - name: Start and enable database service
+      ansible.builtin.systemd_service:
+        name: "{{ db_service }}" # use variable to start and enable database service
+        state: started
+        enabled: true
+
+    - name: Install application packages
+      ansible.builtin.yum:
+        name: "{{ app_pkg }}" # use variable to install application packages
+        state: present
+
+    - name: Start and enable application service
+      ansible.builtin.systemd_service:
+        name: "{{ app_service }}" # use variable to start and enable application service
+        state: started
+        enabled: true
+
+    - name: Deploy index.php file
+      ansible.builtin.copy:
+        dest: "{{ file_path }}" # use variable to specify the destination path for index.php file
+        content: |
+          <?php
+          phpinfo();
+          ?>

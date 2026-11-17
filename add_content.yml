@@ -1,0 +1,10 @@
+---
+- name: Add content to the website
+  hosts: localhost
+  become: true  
+  tasks:
+    - name: Create a new HTML file
+      ansible.builtin.copy:
+        dest: /home/ec2-user/tcs.txt
+        content: "Project name: FCT"
+        

@@ -1,0 +1,79 @@
+# Deploying a 2-tier application with a web front-end and a database back-end.
+---
+- name: Installation of LAMP stack on web server
+  hosts: localhost
+  become: true
+  vars:
+    pkg:
+      - nginx
+      - php
+      - php-fpm
+    service:
+      - nginx
+      - php-fpm
+    file_path: /usr/share/nginx/html/index.php
+  tasks:
+  # installation 
+    - name: Install webserver and application packages
+      ansible.builtin.yum:
+        name: "{{ pkg }}" # use variable to install all packages
+        state: present
+  # start and enable services
+    - name: Start and enable webserver and application services
+      ansible.builtin.systemd_service:
+        name: "{{ item }}" # use variable to start and enable all services
+        state: started
+        enabled: true
+      loop: "{{ service }}" # at a time 2 or many commands run like start and enable or use loop to iterate through the list of services
+# deployment of index.php file
+    - name: Deploy index.php file
+      ansible.builtin.copy:
+        dest: "{{ file_path }}" # use variable to specify the destination path for index.php file
+        content: |
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>My Simple PHP Page</title>
+          </head>
+          <body>
+
+              <h1>Welcome to My Website</h1>
+
+              <?php
+                  // This is a simple PHP code block
+                  $greeting = "Hello, World!";
+                  $current_time = date("F j, Y, g:i a");
+
+                  echo "<p><strong>$greeting</strong></p>";
+                  echo "<p>The current server time is: $current_time</p>";
+              ?>
+
+          </body>
+          </html>
+# installation of database server
+- name: Installation of MariaDB on database server
+  hosts: localhost
+  become: true
+  vars:
+    db_pkg:
+      - mariadb105-server
+    db_service:
+      - mariadb
+    db_name: BSJ
+
+  tasks:
+    - name: Install database server package
+      ansible.builtin.yum:
+        name: "{{ db_pkg }}" # use variable to install all packages
+        state: present
+
+    - name: Start and enable database service
+      ansible.builtin.systemd_service:
+        name: "{{ db_service }}" # use variable to start and enable all services
+        state: started
+        enabled: true
+    - name: Create a database
+      ansible.builtin.shell: |
+        mysql -u root -e "CREATE DATABASE IF NOT EXISTS {{ db_name }};"

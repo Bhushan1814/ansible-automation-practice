@@ -1,0 +1,9 @@
+---
+- name: install tree package
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Install tree package
+      ansible.builtin.yum:
+        name: tree # install the tree package
+        state: present # install the package if not already installed

@@ -1,0 +1,35 @@
+---
+ - name: installtion of lamp
+   hosts: targetserver
+   become: true
+   vars:
+    pkg:
+      - httpd
+      - mariadb105-server
+      - php
+      - php-fpm
+    service:
+      - httpd
+      - mariadb
+      - php-fpm
+    file_path: /var/www/html/index.php
+   tasks:
+    - name: Install packages
+      ansible.builtin.yum:
+        name: "{{ pkg }}" # use variable to install all packages
+        state: present
+
+    - name: Start and enable services
+      ansible.builtin.systemd_service:
+        name: "{{ item }}" # use variable to start and enable all services
+        state: started
+        enabled: true
+      loop: "{{ service }}" # at a time 2 or many commands run like start and enable or use loop to iterate through the list of services
+
+    - name: Deploy index.php file
+      ansible.builtin.copy:
+        dest: "{{ file_path }}" # use variable to specify the destination path for index.php file
+        content: |
+          <?php
+          phpinfo();
+          ?>
